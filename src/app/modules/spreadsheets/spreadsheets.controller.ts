@@ -1,14 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
-import { GetRowsDto } from './dto/get-rows.dto';
+import { Controller, Post, Body, HttpException, HttpStatus, Res} from '@nestjs/common';
+import { Response } from 'express';
 import { SpreadsheetsService } from './spreadsheets.service';
+import { CompareRequestDto } from './dto/compare-request.dto';
 
-@Controller('spreadsheets')
+@Controller('api/v1/spreadsheets')
 export class SpreadsheetsController {
-  constructor(private readonly spreadsheetsService: SpreadsheetsService) {}
+  constructor(private readonly spreadsheetsService: SpreadsheetsService) { }
 
-  @Get('/download')
-  async downloadFile(@Query() query: GetRowsDto){
-    const { spreadSheetId } = query;
-    return this.spreadsheetsService.downloadFile(spreadSheetId)
+  @Post("/checking_estimate")
+  checkingEstimate(@Body() compareRequest: CompareRequestDto, @Res() res: Response) {
+    try {
+      const spreadSheetId = compareRequest.spreadSheetId;
+      const informationCompare = compareRequest.informationCompare;
+
+      const data = {
+        spreadSheetId,
+        informationCompare,
+      };
+
+      return res.status(HttpStatus.OK).send(data);
+    } catch (error) {
+      throw new HttpException(error.message, error.HttpStatus);
+    }
   }
 }
