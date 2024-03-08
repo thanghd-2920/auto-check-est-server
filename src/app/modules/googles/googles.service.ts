@@ -16,19 +16,21 @@ export class GooglesService {
     this.auth();
   }
 
-  async downloadFile(fileId: string): Promise<void> {
-    const filePath = this.configService.google.filePath;
-    const fileStream = fs.createWriteStream(filePath);
-  
-    try {
-      const response = await this.drives.files.export({
-        fileId: fileId,
-        mimeType: DOWNLOAD_FILE_INFO.MIME_TYPE,
-        alt: DOWNLOAD_FILE_INFO.ALT,
-      }, {
-        responseType: 'stream',
-      });
+  async downloadFile(fileId: string): Promise<string> {
+    const filePath = this.configService.google.filePath + `${fileId}.xlsx`;
 
+    try {
+      const response = await this.drives.files.export(
+        {
+          fileId: fileId,
+          mimeType: DOWNLOAD_FILE_INFO.MIME_TYPE,
+          alt: DOWNLOAD_FILE_INFO.ALT,
+        },
+        {
+          responseType: 'stream',
+        },
+      );
+      const fileStream = fs.createWriteStream(filePath);
       response.data.pipe(fileStream);
 
       await new Promise((resolve, reject) => {
@@ -38,6 +40,13 @@ export class GooglesService {
     } catch (error) {
       throw new HttpException(error.message, error.HttpStatus);
     }
+    return filePath;
+  }
+
+  async removeFile(filePath: string) {
+    fs.unlink(filePath, (err) => {
+      if (err) throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    });
   }
 
   private auth() {
