@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpException, HttpStatus, Res} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, Res, Get, Req, Query} from '@nestjs/common';
 import { Response } from 'express';
 import { SpreadsheetsService } from './spreadsheets.service';
 import { CompareRequestDto } from './dto/compare-request.dto';
@@ -22,5 +22,15 @@ export class SpreadsheetsController {
     } catch (error) {
       throw new HttpException(error.message, error.HttpStatus);
     }
+  }
+
+  @Get("/download")
+  downloadFile(@Query("spreadSheetId") spreadSheetId: string){
+    return this.spreadsheetsService.downloadFile(spreadSheetId)
+  }
+
+  @Get("/checkingTotalEffort")
+  checkingTotalEffort(@Query("spreadSheetId") spreadSheetId: string){
+    return this.spreadsheetsService.checkingTotalEfford(spreadSheetId)
   }
 }
