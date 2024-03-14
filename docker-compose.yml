@@ -8,8 +8,6 @@ services:
       - '3000:3000'
     networks:
       - nestjs_network
-    volumes:
-      - .:/usr/src/app
 
 networks:
   nestjs_network:
